@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Customer_App",
+    "slug": "snack-77ad43db-899c-4b27-b63d-78552b007b15",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ], 
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.savinder_paaniwala.snack77ad43db899c4b27b63d78552b007b15"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ac481c25-ae7f-4b65-9be6-f514c32e694a"
+      }
+    }
+  }
+}
