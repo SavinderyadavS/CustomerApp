@@ -17,6 +17,7 @@ import BottomNavigator from './Bottom/BottomNavigator';
 import OrderDetailsPage from './Screens/OrderDetailsPage';
 import OTPPage from './Screens/OTPPage';
 import LoginPage from './Screens/LoginPage';
+import SignUp from './Screens/SignUp';
 
 const Stack=createStackNavigator(); 
  
@@ -27,6 +28,9 @@ return(
 <Stack.Screen name='SplashPage' component={SplashPage} options={{headerShown:false}} />
 <Stack.Screen name='LoginPage' component={LoginPage} options={{headerShown:false}} /> 
 <Stack.Screen name='OTPPage' component={OTPPage} options={{headerShown:false}} /> 
+<Stack.Screen name='signUpPage' component={SignUp} options={{headerShown:false}} /> 
+
+
 <Stack.Screen name='Main' component={Main} options={{headerShown:false}} /> 
 <Stack.Screen name='ContactUs' component={ContactUs} options={{headerShown:false}}/> 
 <Stack.Screen name='MyAddress' component={MyAddress} options={{headerShown:true}}/>
