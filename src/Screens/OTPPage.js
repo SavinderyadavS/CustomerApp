@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 
+import firestore from '@react-native-firebase/firestore';
+
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 const OTPPage = ({ navigation, route }) => {
     const [seconds, setSeconds] = useState(20);
     const [timerActive, setTimerActive] = useState(true);
     const [otp, setOTP] = useState('');
-    const { mobileNumber } = route.params; // Destructure mobileNumber from route params
+    const { mobileNumber , confirmation } = route.params; // Destructure mobileNumber from route params
 
+
+    // const navigation = useNavigation();
     // Effect to decrement the timer every second
     useEffect(() => {
         const timerInterval = setInterval(() => {
@@ -27,13 +34,73 @@ const OTPPage = ({ navigation, route }) => {
         setTimerActive(true);
     };
 
-    const handleVerifyOTP = () => {
+
+
+    const handleVerifyOTP = async () => {
+// try{
+//     const  userCredentioal = await confirmation.confirm(otp);
+//     const user =userCredentioal.user;
+
+
+//     //check user
+//     const useDocumnet = await firestore()
+//     .collection('users')
+//     .doc(user.id)
+//     .get();
+
+//     if(useDocumnet.exists){
+//     console.log(useDocumnet);
+//         console.log("user exist")
+//         navigation.navigate('Main');
+//     }else{
+//         //create new user 
+//         console.log(useDocumnet);
+//      navigation.navigate('signUpPage',{ uid:user.uid });//test
+//     console.log('user not exist')
+//     // navigation.navigate('Main');
+//     }
+
+// }catch(error){
+//     console.log("Invalid code",error)
+// }
+
+try {
+    const userCredential = await confirmation.confirm(otp);
+    const user = userCredential.user;
+
+    const authToken = await user.getIdToken(); // Assuming Firebase user object has getIdToken method
+
+    // Save authentication token to AsyncStorage
+    // await AsyncStorage.setItem('authToken', authToken);
+
+
+
+    console.log(user)
+    // Check if the user exists in Firestore
+    const userDocument = await firestore()
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+    if (userDocument.exists) {
+        console.log("User exists:", userDocument.data());
+        navigation.navigate('Main');
+    } else {
+        console.log("User does not exist");
+        navigation.navigate('signUpPage', { uid: user.uid });
+    }
+} catch (error) {
+    console.error("Error occurred during user verification:", error);
+}
+
         // Here you can verify the OTP
         // For simplicity, let's assume the OTP is correct
         // You can add your logic for OTP verification here
         // After successful verification, navigate to the next screen
-        navigation.navigate('Main'); // Example navigation to Home screen
+        // Example navigation to Home screen
+        // navigation.navigate('Main');
     };
+
 
     return (
         <ImageBackground source={require('../images/giphy.gif')} style={styles.background}>

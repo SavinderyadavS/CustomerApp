@@ -1,15 +1,67 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 
+// import AsyncStorage from '@react-native-async-storage/async-storage'; //login state 
+
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import {useNavigation } from '@react-navigation/native';
+
 const LoginPage = ({ navigation }) => {
     const [mobileNumber, setMobileNumber] = useState('');
 
-    const handleLogin = () => {
-        // Here you can add further validation for the mobile number if needed
-        // For simplicity, let's assume the number is valid
-        // Then navigate to the OTP page and pass mobileNumber as a parameter
-        navigation.navigate('OTPPage', { mobileNumber });
+   
+
+    // const checkAuth = async () => {  
+    //     try {
+    //         const authToken = await AsyncStorage.getItem('authToken');
+    //         return authToken !== null;
+    //     } catch (error) {
+    //         console.error('Error occurred while checking authentication:', error);
+    //         return false;
+    //     }
+    // };
+
+    //     useEffect(() => {
+    //         checkAuth().then((authenticated) => {
+    //             if (authenticated) {
+    //                 navigation.navigate('Main');
+    //             } else {
+    //                 console.log('user not logged in ')
+    //             }
+    //         });
+    //     }, []);
+    
+
+
+            
+
+        
+
+    const handleLogin = async () => {
+        try {
+            // Here you can add further validation for the mobile number if needed
+            // For simplicity, let's assume the number is valid
+            // Then navigate to the OTP page and pass mobileNumber as a parameter
+            const formattedPhoneNumber = `+91${mobileNumber}`;
+            const confirmation = await signInWithPhoneNumber(formattedPhoneNumber);
+            navigation.navigate('OTPPage', { formattedPhoneNumber, confirmation });
+        } catch (error) {
+            console.error('Error occurred during login:', error);
+            // Handle error if needed
+        }
     };
+
+
+    async function signInWithPhoneNumber(phoneNumber) {
+        try {
+            const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+            return confirmation;
+        } catch (error) {
+            console.error('Error occurred during phone number verification:', error);
+            throw error; // Rethrow the error to be caught by the caller
+        }
+    }
 
     return (
         <ImageBackground source={require('../images/jjk.jpg')} style={styles.backgroundImage}>

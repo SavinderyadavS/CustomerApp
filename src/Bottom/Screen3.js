@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import React, { useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, Text, TouchableOpacity, Linking, StyleSheet, ScrollView, Image, Alert } from 'react-native';
+import auth from '@react-native-firebase/auth';
 
 const Stack = createStackNavigator();
 
@@ -30,11 +31,18 @@ const AccountSection = () => {
     setShowLogoutModal(true);
   };
 
-  const handleConfirmLogout = () => {
+  const handleConfirmLogout = async () => {
+    
     setShowLogoutModal(false);
-    if (showLogoutModal) {
-      navigation.navigate('Screen1');
-    }
+    // if (showLogoutModal) {
+    //   navigation.navigate('Screen1');
+    // }
+      try {
+          await auth().signOut();
+          navigation.navigate('LoginPage');
+      } catch (error) {
+          console.error('Error occurred during logout:', error);
+      }
   };
 
   const handleCancelLogout = () => {
