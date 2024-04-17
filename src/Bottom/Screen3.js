@@ -2,21 +2,65 @@ import ContactUs from '../Screens/ContactUs';
 import 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, Text, TouchableOpacity, Linking, StyleSheet, ScrollView, Image, Alert } from 'react-native';
 import auth from '@react-native-firebase/auth';
 
+import firestore from '@react-native-firebase/firestore';
+import { useDispatch, useSelector } from 'react-redux';
+
+
 const Stack = createStackNavigator();
+
 
 const AccountSection = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigation = useNavigation();
+  const[userdata,setUserData]=useState('');
+
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.user);
+  const { uid, userData } = user;
+
+  const [name,setName]=useState(userData?.name||'');
+  const [age,setAge]=useState(userData?.age||'');
+  const [phone,setPhone]=useState(userData?.mobileNumber||'');
+
+  // console.log(name);
+
+
+
+// console.log(userData,"hereee",uid)
 
   const handleRate = () => {
     const packageName = 'https://play.google.com/store/apps/details?id=com.water.reminder.tracker&hl=en_IN&gl=US';
     Linking.openURL('market://details?id=${packageName}&hl=en&action=writeReview');
   };
+
+ 
+
+  // useEffect(()=>{
+  //    const loadData = async ()=>{
+
+  //     try{
+  //       const userDocument = await firestore()
+  //       .collection('users')
+  //       .doc(user.uid)
+  //       .get();
+
+  //       setUserData(userDocument)
+  //       // console.log("from here")
+  //       // console.log(userDocument)
+  //     }catch(error){
+  //       console.log("uerData not found ")
+  //     }
+  //    }
+
+  //    loadData();
+     
+  // },[])
+
 
   const handleShare = () => {
     Linking.openURL('whatsapp://send?text=Hello%20from%20my%20app!');
@@ -65,8 +109,8 @@ const AccountSection = () => {
           <Text style={styles.bmanage}>  Manage your account</Text>
         </TouchableOpacity>
         <Image source={require('../images/delivery.jpg')} style={styles.logo} />
-        <Text style={{ textAlign: 'center' }}>Savinder</Text>
-        <Text style={{ textAlign: 'center' }}>+91 9353762773</Text>
+        <Text style={{ textAlign: 'center' }}>{name}</Text>
+        <Text style={{ textAlign: 'center' }}>{phone}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollstyles} showsVerticalScrollIndicator={false}>

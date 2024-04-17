@@ -6,17 +6,21 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 import firestore from "@react-native-firebase/firestore";
 
 function SignUp({ navigation, route }) {
-    const { uid } = route.params;
+    const { uid ,formattedPhoneNumber} = route.params;
     const [name, setName] = useState('');
     const [age, setAge] = useState('');
     const [floor, setFloor] = useState('');
 
+  
     const saveDetails = async () => {
+        console.log(formattedPhoneNumber ,"jj") 
+        console.log(uid)
         try {
             await firestore().collection('users').doc(uid).set({
                 name,
                 age,
-                floor
+                floor,
+                mobileNumber:formattedPhoneNumber,
             });
 
             navigation.navigate('Main'); // Move to main screen

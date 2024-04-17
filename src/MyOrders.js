@@ -1,20 +1,64 @@
-import React from 'react';
+import React  from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useDispatch, useSelector } from 'react-redux';
+import firestore from "@react-native-firebase/firestore"; 
+import { useEffect, useState } from 'react';
 
 const MyOrders = () => {
   const navigation = useNavigation();
 
-  // Dummy data for demonstration
-  const orders = [
-    { id: 1, date: 'April 1, 2024', items: ['Item 1', 'Item 2'], total: 25.99 },
-    { id: 2, date: 'March 28, 2024', items: ['Item 3', 'Item 4'], total: 19.99 },
-    { id: 3, date: 'March 2, 2024', items: ['Item 3', 'Item 4'], total: 19.99 },
-    { id: 4, date: 'March 28, 2024', items: ['Item 3', 'Item 4'], total: 19.99 },
-    { id: 5, date: 'March 28, 2024', items: ['Item 3', 'Item 4'], total: 19.99 },
-    // Add more orders as needed
-  ];
+  const user = useSelector(state => state.user);
+  const { uid, userData } = user; 
+
+
+  const [order, setOrder] = useState([]);
+
+  useEffect(() => {
+    // Fetch orders associated with the customer's mobile number
+    const fetchOrders = async () => {
+      try {
+        const ordersSnapshot = await firestore()
+          .collection('orders')
+          .where('customerId', '==', userData.mobileNumber)
+          .get();
+
+        const ordersData = ordersSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setOrder(ordersData);
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+      }
+    };
+
+    fetchOrders();
+  }, [userData.mobileNumber]);
+
+
+  const orders= order.map((order,index)=> ({
+    id: order.id,
+    date: order.timestamp.toDate().toLocaleDateString(), // Convert timestamp to date string
+    items: order.product.map(product => product.name), // Assuming product has a name property
+    total: order.totalPrice // Assuming totalPrice is the total price of the order
+  }));
+
+
+  // console.log(order);
+  console.log(orders, 'here');
+
+
+  // // Dummy data for demonstration
+  // const orders = [
+  //   { id: 1, date: 'April 1, 2024', items: ['Item 1', 'Item 2'], total: 25.99 },
+  //   { id: 2, date: 'March 28, 2024', items: ['Item 3', 'Item 4'], total: 19.99 },
+  //   { id: 3, date: 'March 2, 2024', items: ['Item 3', 'Item 4'], total: 19.99 },
+  //   { id: 4, date: 'March 28, 2024', items: ['Item 3', 'Item 4'], total: 19.99 },
+  //   { id: 5, date: 'March 28, 2024', items: ['Item 3', 'Item 4'], total: 19.99 },
+  //   // Add more orders as needed
+  // ];
 
   const navigateToOrderDetails = (order) => {
     navigation.navigate('OrderDetailsPage', { order });

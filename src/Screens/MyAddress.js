@@ -2,13 +2,30 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import EnterAddress from './EnterAddress';
+import firestore from "@react-native-firebase/firestore";
+
+import { useDispatch, useSelector } from 'react-redux';
+
 
 const MyAddress = () => {
+
+  
   const navigation = useNavigation();
   const route = useRoute();
   
+
+  const user = useSelector(state => state.user);
+  const { uid, userData } = user;
+
+  
   // Extracting addressDetails from route.params using destructuring
-  const { addressDetails } = route.params || {};
+  // const { addressDetails } = userData.address ||route.params;
+
+  const { address:addressDetails } = userData;
+
+  
+  console.log(addressDetails)
+
 
   // Function to handle navigation to EnterAddress screen for editing address
   const handleNavigateToInputScreen = () => {
@@ -16,9 +33,13 @@ const MyAddress = () => {
   };
 
   // Function to handle deletion of the address
-  const handleDeleteAddress = () => {
+  const handleDeleteAddress = async () => {
     // Implement the logic to delete the address here
     // For demonstration, let's just navigate back to the previous screen
+    await firestore().collection('users').doc(uid).update({
+      address: firestore.FieldValue.delete()
+  }); 
+
     alert('Address Deleted !');
     navigation.goBack();
   };

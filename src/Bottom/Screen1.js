@@ -36,7 +36,7 @@ const ProductSlider = () => {
 
   const goToCart = () => {
     // Navigate to CartPage
-    navigation.navigate('CartPage');
+    navigation.navigate('CartPage',{cart});
   };
 
   const increaseQuantity = () => {

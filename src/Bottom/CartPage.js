@@ -2,16 +2,52 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // You need to install and import Ionicons or any other icon library you prefer
 import { FontAwesome } from '@expo/vector-icons'; // Import FontAwesome for Rupees symbol
+import {  useSelector } from 'react-redux';
+import firestore from "@react-native-firebase/firestore";
 
-const CartPage = ({ navigation }) => {
-  // Dummy data for demonstration
-  const itemsInCart = [
-    { id: 1, name: 'SudhJal (20 Litre)', price: 15, quantity: 2 },
-    // Add more items as needed
-  ];
 
-  // Calculate total price
-  const totalPrice = itemsInCart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+const CartPage = ({ navigation ,route}) => {
+
+  const user = useSelector(state => state.user);
+  const { uid, userData } = user;
+  const address = userData?.address;
+
+  const { cart} = route.params;
+
+  console.log(cart);
+
+
+
+
+
+
+// Mapping of product IDs to names
+const products = {
+  "0": { name: "SudhJal (20 Litre)", price: 15 },
+  "1": { name: "Dispenser", price: 49 }
+  // Add more mappings as needed
+};
+
+const itemsInCart = Object.entries(cart).map(([productId, quantity]) => ({
+  id: productId, // Use the product ID as the item ID
+  name: products[productId].name, // Get the name based on the product ID
+  price: products[productId].price, // Get the price based on the product ID
+  quantity: quantity
+}));
+
+
+const totalPrice = itemsInCart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+
+
+
+  // // Dummy data for demonstration
+  // const itemsInCart = [
+  //   { id: 1, name: 'SudhJal (20 Litre)', price: 15, quantity: 2 },
+  //   // Add more items as needed
+  // ];
+
+  // // Calculate total price
+  // const totalPrice = itemsInCart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   // Function to navigate to Address page
   const goToAddressPage = () => {
@@ -22,8 +58,25 @@ const CartPage = ({ navigation }) => {
    
 
   // Placeholder function for confirmation action
-  const confirmOrder = () => {
+  const confirmOrder = async () => {
     // Placeholder action for confirming the order
+    console.log(cart); 
+    console.log(itemsInCart)
+
+    console.log(itemsInCart)
+    
+    const ordersCollection = firestore().collection('orders');
+
+    // Create a new order document
+    await ordersCollection.add({
+      customerId: userData.mobileNumber,
+      product: itemsInCart,
+      totalPrice,
+      status: 'pending', // Initial status of the order
+      timestamp: firestore.FieldValue.serverTimestamp() // Timestamp of when the order was placed
+    }); 
+
+
     console.log("Order confirmed");
     navigation.navigate('ThankYouScreen');
   };
@@ -47,12 +100,12 @@ const CartPage = ({ navigation }) => {
         <View>
           <Text style={styles.boxTitle}>Delivery Address</Text>
           <View style={styles.addressDetails}>
-            <Text>Flat No:</Text>
-            <Text>Floor:</Text>
-            <Text>Street:</Text>
-            <Text>Landmark:</Text>
-            <Text>Area:</Text>
-            <Text>Pincode:</Text>
+            <Text>Flat No: {address.houseFlatNo}</Text>
+            <Text>Floor: {address.floor}</Text>
+            <Text>Street:{address.street}</Text>
+            <Text>Landmark:{address.landmark}</Text>
+            <Text>Area:{address.Area}</Text>
+            <Text>Pincode: {address.PinCode}</Text>
           </View>
         </View>
         <TouchableOpacity onPress={goToAddressPage} style={styles.changeButton}>
@@ -79,7 +132,7 @@ const CartPage = ({ navigation }) => {
           <View>
             <Text style={styles.boxTitle}>Your Bill</Text>
             <View style={styles.billDetails}>
-              <Text>Item Details: 2 * 20 Liter water, 1 Dispenser</Text>
+              <Text>Item Details: {cart[0]} * 20 Liter water, {cart['1']} Dispenser</Text>
               {/* Fetch the corrrect items from the previous Page*/}
               <Text>Item Total: ₹{(itemsInCart.reduce((acc, item) => acc + (item.price * item.quantity), 0)).toFixed(2)}</Text>
               {itemsInCart.map((item, index) => (
@@ -92,6 +145,8 @@ const CartPage = ({ navigation }) => {
           </View>
         </View>
       </TouchableOpacity>
+
+
 
       {/* Modal for Payment Details */}
       <Modal
