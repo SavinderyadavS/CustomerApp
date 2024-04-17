@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { firestore, firebase } from '../Screens/config';
+import firestore from "@react-native-firebase/firestore";
 import { Picker } from '@react-native-picker/picker'; // Import Picker from @react-native-picker/picker
+import { useDispatch, useSelector } from 'react-redux';
 
 const EnterAddress = ({ navigation }) => {
     const [houseFlatNo, setHouseFlatNo] = useState('');
@@ -14,7 +15,15 @@ const EnterAddress = ({ navigation }) => {
     const [pinCodeEntered, setPinCodeEntered] = useState(''); // State to track entered pin code
     const [loading, setLoading] = useState(false); // State to manage loading indicator
 
-    const handleSaveDetails = () => {
+  
+
+    const user = useSelector(state => state.user);
+    const { uid } = user;
+   
+
+    
+    const handleSaveDetails = async () => {
+
         try {
             if (!houseFlatNo || !floor || !street || !landmark || !Area || !PinCode) {
                 throw new Error('Please fill in all the details correctly before saving.');
@@ -30,8 +39,6 @@ const EnterAddress = ({ navigation }) => {
 
             setLoading(true); // Set loading to true when saving starts
 
-            const timestamp = firebase.firestore.FieldValue.serverTimestamp();
-
             const data = {
                 houseFlatNo: houseFlatNo,
                 floor: floor,
@@ -39,25 +46,24 @@ const EnterAddress = ({ navigation }) => {
                 landmark: landmark,
                 Area: Area,
                 PinCode: PinCode,
-                createdAt: timestamp
+                createdAt: firestore.FieldValue.serverTimestamp() 
             };
 
-            firestore.collection('addresses')
-                .add(data)
-                .then(() => {
-                    Alert.alert('Address Saved Successfully!');
-                    navigation.goBack(); // Navigate back to MyAddress page
-                })
-                .catch((error) => {
-                    Alert.alert('Error', error.message);
-                })
-                .finally(() => {
-                    setLoading(false); // Set loading to false after saving completes
-                });
+           
+            await firestore().collection('users').doc(uid).update({
+                address: data
+            }); 
+
+            // Show success message and navigate back
+            Alert.alert('Address Saved Successfully!');
+            navigation.goBack();
         } catch (error) {
             Alert.alert('Error', error.message);
+        } finally {
+            setLoading(false); // Set loading to false after saving completes
         }
     };
+
 
     const validatePinCode = () => {
         if (pinCodeEntered.length === 6 && pinCodeEntered !== '560032') {
